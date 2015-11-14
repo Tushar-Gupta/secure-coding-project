@@ -103,6 +103,60 @@ def signUp():
         cursor.close() 
         conn.close()
 
+@app.route('/createEventPage')
+def createEventPage():
+    if session.get('user'):
+        return render_template('createEvent.html')
+    else:
+        return render_template('error.html',error = 'Unauthorized Access')
+
+
+@app.route('/createEvent',methods=['POST'])
+def createEvent():
+    try:
+        _eventname = request.form['inputEventname']
+        _eventlink = request.form['inputEventlink']
+        _eventtype = request.form['inputEventtype']
+        _eventdatetime = request.form['inputEventdatetime']
+        _eventuser_id = session['user']
+        conn = mysql.connect()
+        cursor = conn.cursor()
+        print type(_eventuser_id)
+        cursor.callproc('sp_getUserNamefromId',(_eventuser_id,))
+        data = cursor.fetchall()
+        print data
+        _eventusername = data[0][0]
+        print _eventusername
+        cursor.close() 
+        conn.close()
+        # validate the received values
+        if _eventname and _eventtype and _eventdatetime and _eventusername:
+            
+            # All Good, let's call MySQL
+            conn = mysql.connect()
+            cursor = conn.cursor()
+            cursor.callproc('sp_createEvent',(_eventname,_eventlink,_eventtype,_eventuser_id,_eventusername,_eventdatetime))
+            data = cursor.fetchall()
+            
+            if len(data) is 0:
+                conn.commit()
+                return json.dumps({'message':'Event created successfully !'})
+            else:
+                return json.dumps({'error':str(data[0])})
+            cursor.close() 
+            conn.close()
+        else:
+            return json.dumps({'html':'<span>Enter the required fields</span>'})
+
+    except Exception as e:
+        print "Yahin se aara hai"
+        return json.dumps({'error':str(e)})
+        cursor.close() 
+        conn.close()
+    # finally:
+    #     cursor.close() 
+    #     conn.close()
+
 
 if __name__ == "__main__":
     app.run(debug=True)
