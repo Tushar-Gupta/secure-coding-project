@@ -9,12 +9,32 @@ mysql = MySQL()
  
 # MySQL configurations
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'abcd'
+app.config['MYSQL_DATABASE_PASSWORD'] = ''
 app.config['MYSQL_DATABASE_DB'] = 'StudentPortal'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
 
 
+def checkAdmin(_userID):
+    conn = mysql.connect()
+    cursor = conn.cursor()
+    cursor.callproc('sp_checkAdmin',(_userID,))
+    data = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    if data[0][0] == 'admin':
+        return True 
+    else:
+        return False
+
+def getAllUsers(): 
+    conn = mysql.connect()
+    cursor = conn.cursor()
+    cursor.callproc('sp_getUsers',())
+    data = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return data
 
 app.secret_key = 'MART'
 
@@ -37,7 +57,7 @@ def validateLogin():
         _password = request.form['inputPassword'] 
         conn = mysql.connect()
         cursor = conn.cursor()
-        cursor.callproc('sp_validateLogin',(_username,))
+        cursor.callproc('sp_validateLogin',(aa,))
         data = cursor.fetchall()
         print data
         if len(data) > 0:
@@ -51,7 +71,6 @@ def validateLogin():
         else:
             return render_template('error.html',error = 'Wrong Email address or Password.')
     except Exception as e:
-        print "Unknown error 53"
         return render_template('error.html',error = str(e))
     finally:
         cursor.close()
@@ -59,12 +78,45 @@ def validateLogin():
 
 @app.route('/userHome')
 def userHome():
-    print "line 60"
-    print session.get('user')
-    if session.get('user'):
-        return render_template('userHome.html')
+    sessionUser = session.get('user')
+    if sessionUser:
+
+        isAdmin = checkAdmin(sessionUser)
+
+        conn = mysql.connect()
+        cursor = conn.cursor()
+        cursor.callproc('sp_GetEvents',())
+        data = cursor.fetchall()
+        allEvents = data
+        cursor.close() 
+        conn.close()
+
+        conn = mysql.connect()
+        cursor = conn.cursor()
+        cursor.callproc('sp_GetUserEvents',(sessionUser,))
+        data = cursor.fetchall()
+        allUserEvents = data
+        cursor.close() 
+        conn.close()
+
+
+
+        ## TODO: create view for getevents 
+        if isAdmin:
+            return render_template('userHome.html', allData = allEvents, 
+                                                    modifyData= allEvents, 
+                                                    isAdmin = isAdmin,
+                                                    users = getAllUsers()
+                                                    )
+        else: 
+            return render_template('userHome.html', allData = allEvents, 
+                                                    modifyData= allUserEvents, 
+                                                    isAdmin = isAdmin
+                                                    )
+
     else:
         return render_template('error.html',error = 'Unauthorized Access')
+
 
 @app.route('/logout')
 def logout():
@@ -90,8 +142,9 @@ def signUp():
             data = cursor.fetchall()
 
             if len(data) is 0:
+                #redirect to login! 
                 conn.commit()
-                return json.dumps({'message':'User created successfully !'})
+                return json.dumps({'html':'<span>Successfull</span>'})
             else:
                 return json.dumps({'error':str(data[0])})
         else:
@@ -140,7 +193,8 @@ def createEvent():
             
             if len(data) is 0:
                 conn.commit()
-                return json.dumps({'message':'Event created successfully !'})
+                console.log("New event created"); 
+                return render_template('createEvent.html')
             else:
                 return json.dumps({'error':str(data[0])})
             cursor.close() 

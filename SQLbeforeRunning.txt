@@ -54,7 +54,7 @@ CREATE TABLE `StudentPortal`.`Events` (
 `event_user_id` BIGINT(20) NULL ,
 `event_link` VARCHAR(200) NULL,
 `event_datetime` DATETIME NULL,
-‘event_type' VARCHAR(200) NULL,
+`event_type` VARCHAR(200) NULL,
 PRIMARY KEY (`event_id`)
 );
 
@@ -66,7 +66,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_createEvent`(
  IN p_eventtype VARCHAR(200),
  IN p_user_id BIGINT(20),
  IN p_username VARCHAR(200),
- IN p_datetime DATETIME()
+ IN p_datetime DATETIME
 )
 BEGIN
  if ( select exists (select 1 from Events where event_name = p_eventname) )
@@ -104,3 +104,55 @@ BEGIN
     select user_username from Users where user_id = p_user_id;
 END$$
 DELIMITER ;
+
+## Get Events 
+
+USE StudentPortal
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_GetEvents`(
+)
+BEGIN
+    select * from Events;
+END$$
+DELIMITER ;
+
+## Get User Events 
+
+
+USE StudentPortal
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_GetUserEvents`(
+IN p_userid BIGINT(20)
+)
+BEGIN
+    select * from Events where event_user_id = p_userid;
+END$$
+DELIMITER ;
+
+## Check admin procedure 
+
+USE StudentPortal
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_checkAdmin`(
+IN p_userid BIGINT(20)
+)
+BEGIN
+    select user_role from Users where user_id = p_userid;
+END$$
+DELIMITER ;
+
+## Get all users
+
+USE StudentPortal
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_getUsers`()
+BEGIN
+    select * from Users;
+END$$
+DELIMITER ;
+
+
+
+
+
+
