@@ -57,7 +57,7 @@ def validateLogin():
         _password = request.form['inputPassword'] 
         conn = mysql.connect()
         cursor = conn.cursor()
-        cursor.callproc('sp_validateLogin',(aa,))
+        cursor.callproc('sp_validateLogin',(_username,))
         data = cursor.fetchall()
         print data
         if len(data) > 0:
@@ -98,7 +98,6 @@ def userHome():
         allUserEvents = data
         cursor.close() 
         conn.close()
-
 
 
         ## TODO: create view for getevents 

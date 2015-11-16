@@ -129,7 +129,7 @@ BEGIN
 END$$
 DELIMITER ;
 
-## Check admin procedure 
+## Check admin
 
 USE StudentPortal
 DELIMITER $$
