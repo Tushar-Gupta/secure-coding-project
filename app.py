@@ -34,6 +34,8 @@ def getAllUsers():
     data = cursor.fetchall()
     cursor.close()
     conn.close()
+    data = list(data)
+    data = [list(elem) for elem in data]
     return data
 
 app.secret_key = 'MART'
@@ -99,17 +101,21 @@ def userHome():
         cursor.close() 
         conn.close()
 
+        allEvents = list(allEvents)
+        allEvents = [list(elem) for elem in allEvents]
+        allUserEvents = list(allUserEvents)
+        allUserEvents = [list(elem) for elem in allUserEvents]
 
         ## TODO: create view for getevents 
         if isAdmin:
-            return render_template('userHome.html', allData = allEvents, 
-                                                    modifyData= allEvents, 
+            return render_template('userHome.html', allData = list(allEvents), 
+                                                    modifyData= list(allEvents), 
                                                     isAdmin = isAdmin,
-                                                    users = getAllUsers()
+                                                    users = list(getAllUsers())
                                                     )
         else: 
-            return render_template('userHome.html', allData = allEvents, 
-                                                    modifyData= allUserEvents, 
+            return render_template('userHome.html', allData = list(allEvents), 
+                                                    modifyData= list(allUserEvents), 
                                                     isAdmin = isAdmin
                                                     )
 
@@ -192,8 +198,8 @@ def createEvent():
             
             if len(data) is 0:
                 conn.commit()
-                console.log("New event created"); 
-                return render_template('createEvent.html')
+                #console.log("New event created"); 
+                return redirect('/userHome')
             else:
                 return json.dumps({'error':str(data[0])})
             cursor.close() 

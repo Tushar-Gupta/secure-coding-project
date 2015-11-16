@@ -30,10 +30,57 @@
  
         <div class="jumbotron">
             <h1>Welcome Home.</h1>
-            <p>{{modifyData}}</p> 
+            <p>How are you today?</p> 
         </div>
- 
- 
+        
+        <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+        <tr>
+          <td>Event Name
+          <td>Created By
+          <td>Link
+          <td>Event Type
+          <td>When
+          <td>Modify
+        </tr>
+      </thead>
+      <tbody>
+      {% if (allData[0]|length)==0 %}
+        <tr>
+        <td>No events have been created yet!
+        </tr>
+      {% elif isAdmin %}
+        {% for event in allData %}
+       <tr>
+          <td>{{event[1]}}
+          <td>{{event[2]}}
+          <td>{{event[4]}}
+          <td>{{event[6]}}
+          <td>{{event[5]}}
+          <td><a href="#">Modify</a>
+        </tr>
+        {% endfor %}
+      {% else %}
+      {% for event in allData %}
+        <tr>
+          <td>{{event[1]}}
+          <td>{{event[2]}}
+          <td>{{event[4]}}
+          <td>{{event[6]}}
+          <td>{{event[5]}}
+          <td>
+          {% if event in modifyData %}
+          <a href="#">Modify</a>
+          {% else %}
+          Not allowed
+          {% endif %}
+        </tr>
+        {% endfor %}
+      {% endif %}
+    </tbody>
+      </table>
+    </div>
         <footer class="footer">
             <p>&copy; Made as a part of CSE500 at IIIT Delhi</p>
         </footer>
