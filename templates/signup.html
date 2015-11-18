@@ -27,7 +27,7 @@
  
       <div class="jumbotron">
         <h1>Sign Up!</h1>
-        <form class="form-signin">
+        <form class="form-signin" action="/signUp" method="post">
         <label for="inputUsername" class="sr-only">Name</label>
         <input type="name" id="inputUsername" name="inputUsername" class="form-control" placeholder="Name" required autofocus>
         <label for="inputRollno" class="sr-only">Rollno</label>
@@ -35,7 +35,7 @@
         <label for="inputPassword" class="sr-only">Password</label>
         <input type="password" id="inputPassword" name="inputPassword" class="form-control" placeholder="Password" required>
          
-        <button id="btnSignUp" class="btn btn-lg btn-primary btn-block" type="button">Sign up</button>
+        <button id="btnSignUp" class="btn btn-lg btn-primary btn-block" type="submit">Sign up</button>
       </form>
       </div>
  
@@ -48,22 +48,22 @@
     </div>
 
     <script type="text/javascript">
-      $(function() {
-        $('#btnSignUp').click(function() {
+    //   $(function() {
+    //     $('#btnSignUp').click(function() {
      
-            $.ajax({
-                url: '/signUp',
-                data: $('form').serialize(),
-                type: 'POST',
-                success: function(response) {
-                    console.log(response);
-                },
-                error: function(error) {
-                    console.log(error);
-                }
-            });
-        });
-    });
+    //         $.ajax({
+    //             url: '/signUp',
+    //             data: $('form').serialize(),
+    //             type: 'POST',
+    //             success: function(response) {
+    //                 console.log(response);
+    //             },
+    //             error: function(error) {
+    //                 console.log(error);
+    //             }
+    //         });
+    //     });
+    // });
     </script>
   </body>
 </html>

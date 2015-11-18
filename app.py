@@ -101,6 +101,14 @@ def userHome():
         cursor.close() 
         conn.close()
 
+        conn = mysql.connect()
+        cursor = conn.cursor()
+        cursor.callproc('sp_getUserNamefromId',(sessionUser,))
+        data = cursor.fetchall()
+        currentusername = data[0][0]
+        cursor.close() 
+        conn.close()
+
         allEvents = list(allEvents)
         allEvents = [list(elem) for elem in allEvents]
         allUserEvents = list(allUserEvents)
@@ -111,12 +119,14 @@ def userHome():
             return render_template('userHome.html', allData = list(allEvents), 
                                                     modifyData= list(allEvents), 
                                                     isAdmin = isAdmin,
-                                                    users = list(getAllUsers())
+                                                    users = list(getAllUsers()),
+                                                    currentUser = currentusername
                                                     )
         else: 
             return render_template('userHome.html', allData = list(allEvents), 
                                                     modifyData= list(allUserEvents), 
-                                                    isAdmin = isAdmin
+                                                    isAdmin = isAdmin,
+                                                    currentUser = currentusername
                                                     )
 
     else:
@@ -149,7 +159,8 @@ def signUp():
             if len(data) is 0:
                 #redirect to login! 
                 conn.commit()
-                return render_template('index.html')
+                return redirect('/showLogin')
+                #return render_template('index.html')
             else:
                 return json.dumps({'error':str(data[0])})
         else:
@@ -201,14 +212,15 @@ def createEvent():
                 #console.log("New event created"); 
                 return redirect('/userHome')
             else:
-                return json.dumps({'error':str(data[0])})
+                return render_template('error.html',error = str(data[0]))
+
             cursor.close() 
             conn.close()
         else:
             return json.dumps({'html':'<span>Enter the required fields</span>'})
 
     except Exception as e:
-        return json.dumps({'error':str(e)})
+        return render_template('error.html',error ='Event exists. Hit Back on your browser!')
         cursor.close() 
         conn.close()
     # finally:
