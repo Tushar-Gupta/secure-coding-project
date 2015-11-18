@@ -208,7 +208,6 @@ def createEvent():
             return json.dumps({'html':'<span>Enter the required fields</span>'})
 
     except Exception as e:
-        print "Yahin se aara hai"
         return json.dumps({'error':str(e)})
         cursor.close() 
         conn.close()
@@ -217,14 +216,75 @@ def createEvent():
     #     conn.close()
 
 
-@app.route('/deleteUser/<int:userID>')
-def deleteUser(userID):
+#INCOMPLETE
+@app.route('/deleteUser/<int:_userID>')
+def deleteUser(_userID):
     sessionUser = session.get('user')
+
     if sessionUser and checkAdmin(sessionUser):
-        print userID
-        return redirect('/userHome')
+        try:
+            conn = mysql.connect()
+            cursor = conn.cursor()
+            cursor.callproc('sp_deleteUser1',(_userID,))
+            # data = cursor.fetchall()
+            # print data
+            cursor.close()
+            conn.close()
+            return redirect('/userHome')
+        except Exception as e:
+            return json.dumps({'error':str(e)})
+            cursor.close() 
+            conn.close()
     else:
         return render_template('error.html',error = 'Unauthorized Access')
+
+@app.route('/modifyEventSendData/<int:_eventID>')
+def modifyEventSendData(_eventID):
+    sessionUser = session.get('user')
+    if sessionUser:
+        try:
+            conn = mysql.connect()
+            cursor = conn.cursor()
+            cursor.callproc('sp_GetEventFromID',(_eventID,))
+            data = cursor.fetchall()
+            print list(data)
+            cursor.close()
+            conn.close()
+            return render_template('modifyEvent.html',event=list(data[0]))
+        except Exception as e:
+            return json.dumps({'error':str(e)})
+            cursor.close() 
+            conn.close()
+    else:
+        return render_template('error.html',error = 'Unauthorized Access')
+
+
+@app.route('/modifyEvent',methods=['POST'])
+def modifyEvent():
+    try:
+        _eventname = request.form['inputEventname']
+        _eventlink = request.form['inputEventlink']
+        _eventtype = request.form['inputEventtype']
+        _eventdatetime = request.form['inputEventdatetime']
+        print "We are here."
+        _eventID = request.form['eventID']
+        print _eventdatetime
+
+        conn = mysql.connect()
+        cursor = conn.cursor()
+        #print type(_eventuser_id)
+        cursor.callproc('sp_modifyEvent1',(_eventID,_eventname,_eventlink,_eventtype,_eventdatetime))
+        conn.commit()
+        cursor.close() 
+        conn.close()
+        # validate the received values
+        return redirect('/userHome')
+        
+
+    except Exception as e:
+        return json.dumps({'error':str(e)})
+        cursor.close() 
+        conn.close()
 
 
 if __name__ == "__main__":

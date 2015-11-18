@@ -169,7 +169,7 @@ DELIMITER ;
 
 USE StudentPortal
 DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_modifyEvent`(
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_modifyEvent1`(
  IN p_event_id BIGINT(20), 
  IN p_eventname VARCHAR(200),
  IN p_eventlink VARCHAR(200),
@@ -184,7 +184,7 @@ BEGIN
     event_link = p_eventlink,
     event_type = p_eventtype, 
     event_datetime = p_datetime
-    WHERE event_id = p_eventid; 
+    WHERE event_id = p_event_id; 
  ELSE
    select `Event doesn't exist!`;
   END IF;
@@ -195,14 +195,11 @@ DELIMITER ;
 
 USE StudentPortal
 DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_deleteUser`(
-IN p_user_id VARCHAR(200)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_deleteUser1`(
+IN p_user_id BIGINT(20)
 )
 BEGIN
     DELETE from Users where user_id = p_user_id;
 END$$
 DELIMITER ;
-
-
-
 

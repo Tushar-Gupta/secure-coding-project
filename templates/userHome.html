@@ -58,7 +58,7 @@
           <td>{{event[4]}}
           <td>{{event[6]}}
           <td>{{event[5]}}
-          <td><a href="#">Modify</a>
+          <td><a href="/modifyEventSendData/{{event[0]}}">Modify</a>
         </tr>
         {% endfor %}
       {% else %}
@@ -71,7 +71,7 @@
           <td>{{event[5]}}
           <td>
           {% if event in modifyData %}
-          <a id="modifyBtn" href="#">Modify</a>
+          <td><a href="/modifyEventSendData/{{event[0]}}">Modify</a>
           {% else %}
           Not allowed
           {% endif %}
