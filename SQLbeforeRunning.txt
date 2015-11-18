@@ -58,6 +58,8 @@ CREATE TABLE `StudentPortal`.`Events` (
 PRIMARY KEY (`event_id`)
 );
 
+## Create event 
+
 USE StudentPortal
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_createEvent`(
@@ -151,7 +153,55 @@ BEGIN
 END$$
 DELIMITER ;
 
+## Get event from ID 
 
+USE StudentPortal
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_GetEventFromID`(
+IN p_eventid BIGINT(20)
+)
+BEGIN
+    select * from Events where event_id = p_eventid;
+END$$
+DELIMITER ;
+
+## Modify event 
+
+USE StudentPortal
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_modifyEvent`(
+ IN p_event_id BIGINT(20), 
+ IN p_eventname VARCHAR(200),
+ IN p_eventlink VARCHAR(200),
+ IN p_eventtype VARCHAR(200),
+ IN p_datetime DATETIME
+)
+BEGIN
+ IF ( select exists (select 1 from Events where event_id = p_event_id) )
+ THEN
+    UPDATE Events
+    SET event_name = p_eventname, 
+    event_link = p_eventlink,
+    event_type = p_eventtype, 
+    event_datetime = p_datetime
+    WHERE event_id = p_eventid; 
+ ELSE
+   select `Event doesn't exist!`;
+  END IF;
+END$$
+DELIMITER ;
+
+## Delete user 
+
+USE StudentPortal
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_deleteUser`(
+IN p_user_id VARCHAR(200)
+)
+BEGIN
+    DELETE from Users where user_id = p_user_id;
+END$$
+DELIMITER ;
 
 
 

@@ -149,7 +149,7 @@ def signUp():
             if len(data) is 0:
                 #redirect to login! 
                 conn.commit()
-                return json.dumps({'html':'<span>Successfull</span>'})
+                return render_template('index.html')
             else:
                 return json.dumps({'error':str(data[0])})
         else:
