@@ -9,7 +9,7 @@ mysql = MySQL()
  
 # MySQL configurations
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = ''
+app.config['MYSQL_DATABASE_PASSWORD'] = 'abcd'
 app.config['MYSQL_DATABASE_DB'] = 'StudentPortal'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
@@ -215,6 +215,16 @@ def createEvent():
     # finally:
     #     cursor.close() 
     #     conn.close()
+
+
+@app.route('/deleteUser/<int:userID>')
+def deleteUser(userID):
+    sessionUser = session.get('user')
+    if sessionUser and checkAdmin(sessionUser):
+        print userID
+        return redirect('/userHome')
+    else:
+        return render_template('error.html',error = 'Unauthorized Access')
 
 
 if __name__ == "__main__":
