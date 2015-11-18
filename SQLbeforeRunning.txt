@@ -97,6 +97,8 @@ BEGIN
 END$$
 DELIMITER ;
 
+##Get username from user-id
+
 USE StudentPortal
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_getUserNamefromId`(
@@ -208,19 +210,32 @@ DELIMITER ;
 USE StudentPortal
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_editUserProfileData`(
- IN p_userid BIGINT(20), 
- IN p_username VARCHAR(200),
+ IN p_userid BIGINT(20),
  IN p_rollno VARCHAR(200)
 )
 BEGIN
- IF ( select exists (select 1 from users where user_id = p_userid) )
+ IF ( select exists (select 1 from Users where user_id = p_userid) )
  THEN
-    UPDATE users
-    SET user_username = p_username,
-    user_rollno = p_rollno;
+    UPDATE Users
+    SET user_rollno = p_rollno
+    WHERE user_id = p_userid;
  ELSE
    select `User doesn't exist!`;
   END IF;
 END$$
 DELIMITER ;
+
+
+## Get User from UserID
+
+USE StudentPortal
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_getUserfromId`(
+IN p_user_id BIGINT(20)
+)
+BEGIN
+    select * from Users where user_id = p_user_id;
+END$$
+DELIMITER ;
+
 

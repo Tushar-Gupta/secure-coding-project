@@ -9,7 +9,7 @@ mysql = MySQL()
  
 # MySQL configurations
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = ''
+app.config['MYSQL_DATABASE_PASSWORD'] = 'abcd'
 app.config['MYSQL_DATABASE_DB'] = 'StudentPortal'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
@@ -160,7 +160,6 @@ def signUp():
                 #redirect to login! 
                 conn.commit()
                 return redirect('/showLogin')
-                #return render_template('index.html')
             else:
                 return json.dumps({'error':str(data[0])})
         else:
@@ -172,13 +171,51 @@ def signUp():
         cursor.close() 
         conn.close()
 
+@app.route('/editProfilePage')
+def editProfilePage():
+    if session.get('user'):
+        _userID = session.get('user')
+        conn = mysql.connect()
+        cursor = conn.cursor()
+        cursor.callproc('sp_getUserfromId',(_userID,))
+        data = cursor.fetchall()
+        print data
+        username = data[0][1]
+        rollNo = data[0][2]
+        cursor.close() 
+        conn.close()
+        return render_template('editProfile.html',rollNo=rollNo,username=username)
+    else:
+        return render_template('error.html',error = 'Unauthorized Access')
+
+@app.route('/editProfile',methods=['POST'])
+def editProfile():
+    try:
+        # _username = request.form['inputUsername']
+        _rollno = request.form['inputRollno']
+        _userID = session.get('user')
+        conn = mysql.connect()
+        cursor = conn.cursor()
+        cursor.callproc('sp_editUserProfileData',(_userID,_rollno))
+        conn.commit()
+        cursor.close() 
+        conn.close()
+        # validate the received values
+        return redirect('/userHome')
+        
+
+    except Exception as e:
+        return json.dumps({'error':str(e)})
+        cursor.close() 
+        conn.close()
+
+
 @app.route('/createEventPage')
 def createEventPage():
     if session.get('user'):
         return render_template('createEvent.html')
     else:
         return render_template('error.html',error = 'Unauthorized Access')
-
 
 @app.route('/createEvent',methods=['POST'])
 def createEvent():

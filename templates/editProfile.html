@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Students Portal | Edit Profile</title>
+ 
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    
+    <link href="http://getbootstrap.com/dist/css/bootstrap.min.css" rel="stylesheet">
+ 
+    <link href="http://getbootstrap.com/examples/jumbotron-narrow/jumbotron-narrow.css" rel="stylesheet">
+    <link href="../static/signup.css" rel="stylesheet">
+    
+  </head>
+ 
+  <body>
+ 
+    <div class="container">
+      <div class="header">
+        <nav>
+          <ul class="nav nav-pills pull-right">
+            <li role="presentation" class="active"><a href="/userHome">Home</a></li>
+            <li role="presentation" class="active"><a href="/logout">Logout</a></li>
+          </ul>
+        </nav>
+        <h3 class="text-muted">Students Portal</h3>
+      </div>
+ 
+      <div class="jumbotron">
+        <h1>Update details</h1>
+        <form class="form-signin" action="/editProfile" method="post">
+        
+        <label for="inputRollno" class="sr-only">Rollno</label>
+        <input type="text" id="inputRollno" name="inputRollno" class="form-control" value="{{rollNo}}" required autofocus>
+         
+        <button id="btnSignUp" class="btn btn-lg btn-primary btn-block" type="submit">Save Changes</button>
+      </form>
+      </div>
+ 
+       
+ 
+      <footer class="footer">
+            <p>&copy; Made as a part of CSE500 at IIIT Delhi</p>
+        </footer>
+ 
+    </div>
+
+    <script type="text/javascript">
+    
+    </script>
+  </body>
+</html>
