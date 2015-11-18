@@ -30,10 +30,10 @@
  
         <div class="jumbotron">
             <h1>Welcome Home.</h1>
-            <p>How are you today?</p> 
+            <p>How are you today?</p>
         </div>
         
-        <div class="table-responsive">
+      <div class="table-responsive">
       <table class="table table-striped">
         <thead>
         <tr>
@@ -81,6 +81,35 @@
     </tbody>
       </table>
     </div>
+
+    {% if isAdmin %}
+    <h3>List of Users</h3>
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+        <tr>
+          <td>User Name
+          <td>Role
+          <td>Roll Number
+          <td>Delete
+        </tr>
+      </thead>
+      <tbody>
+        {% for user in users %}
+       <tr>
+          <td>{{user[1]}}
+          <td>{{user[3]}}
+          <td>{{user[2]}}
+          <td><a href="#">Delete</a>
+        </tr>
+        {% endfor %}
+      </tbody>
+      </table>
+    </div>
+    {% endif %}
+
+
+
         <footer class="footer">
             <p>&copy; Made as a part of CSE500 at IIIT Delhi</p>
         </footer>
