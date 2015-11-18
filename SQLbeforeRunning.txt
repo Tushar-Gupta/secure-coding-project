@@ -120,7 +120,6 @@ DELIMITER ;
 
 ## Get User Events 
 
-
 USE StudentPortal
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_GetUserEvents`(
@@ -200,6 +199,28 @@ IN p_user_id BIGINT(20)
 )
 BEGIN
     DELETE from Users where user_id = p_user_id;
+END$$
+DELIMITER ;
+
+
+## Modify user profile data 
+
+USE StudentPortal
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_editUserProfileData`(
+ IN p_userid BIGINT(20), 
+ IN p_username VARCHAR(200),
+ IN p_rollno VARCHAR(200)
+)
+BEGIN
+ IF ( select exists (select 1 from users where user_id = p_userid) )
+ THEN
+    UPDATE users
+    SET user_username = p_username,
+    user_rollno = p_rollno;
+ ELSE
+   select `User doesn't exist!`;
+  END IF;
 END$$
 DELIMITER ;
 
