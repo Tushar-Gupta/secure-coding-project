@@ -91,8 +91,8 @@ def userHome():
     sessionUser = session.get('user')
     if sessionUser:
 
-        app.logger.warning('A warning occurred')
-        app.logger.error('An error occurred')
+        # app.logger.warning('A warning occurred')
+        # app.logger.error('An error occurred')
         
 
         isAdmin = checkAdmin(sessionUser)
