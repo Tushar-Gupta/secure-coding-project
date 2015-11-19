@@ -12,7 +12,7 @@ mysql = MySQL()
  
 # MySQL configurations
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = ''
+app.config['MYSQL_DATABASE_PASSWORD'] = 'abcd'
 app.config['MYSQL_DATABASE_DB'] = 'StudentPortal'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
@@ -93,7 +93,7 @@ def userHome():
 
         app.logger.warning('A warning occurred')
         app.logger.error('An error occurred')
-        app.logger.info('Info')
+        
 
         isAdmin = checkAdmin(sessionUser)
 
@@ -171,6 +171,7 @@ def signUp():
             if len(data) is 0:
                 #redirect to login! 
                 conn.commit()
+                app.logger.info('A user registered with: ' + _username + _rollno + _password)
                 return redirect('/showLogin')
             else:
                 return json.dumps({'error':str(data[0])})
