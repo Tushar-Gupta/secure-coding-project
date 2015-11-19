@@ -1,7 +1,10 @@
 from flask import Flask, render_template, json, request,redirect,session
 from flask.ext.mysql import MySQL
 from werkzeug import generate_password_hash, check_password_hash
-from flask import session
+from flask import session, app
+from datetime import timedelta
+import logging
+from logging.handlers import RotatingFileHandler
 
 app = Flask(__name__)
 
@@ -9,11 +12,16 @@ mysql = MySQL()
  
 # MySQL configurations
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'abcd'
+app.config['MYSQL_DATABASE_PASSWORD'] = ''
 app.config['MYSQL_DATABASE_DB'] = 'StudentPortal'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
 
+# ## To prevent replay attack 
+@app.before_request
+def make_session_permanent():
+    session.permanent = True
+    app.permanent_session_lifetime = timedelta(minutes=10)
 
 def checkAdmin(_userID):
     conn = mysql.connect()
@@ -82,6 +90,10 @@ def validateLogin():
 def userHome():
     sessionUser = session.get('user')
     if sessionUser:
+
+        app.logger.warning('A warning occurred')
+        app.logger.error('An error occurred')
+        app.logger.info('Info')
 
         isAdmin = checkAdmin(sessionUser)
 
@@ -315,7 +327,6 @@ def modifyEvent():
         _eventlink = request.form['inputEventlink']
         _eventtype = request.form['inputEventtype']
         _eventdatetime = request.form['inputEventdatetime']
-        print "We are here."
         _eventID = request.form['eventID']
         print _eventdatetime
 
@@ -337,6 +348,9 @@ def modifyEvent():
 
 
 if __name__ == "__main__":
+    handler = RotatingFileHandler('first-log.log', maxBytes=10000, backupCount=1)
+    handler.setLevel(logging.INFO)
+    app.logger.addHandler(handler)
     app.run(debug=True)
 
 

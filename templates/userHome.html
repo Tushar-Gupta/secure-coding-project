@@ -57,7 +57,9 @@
        <tr>
           <td>{{event[1]}}
           <td>{{event[2]}}
+          {% autoescape off %}
           <td>{{event[4]}}
+          {% endautoescape %}
           <td>{{event[6]}}
           <td>{{event[5]}}
           <td><a href="/modifyEventSendData/{{event[0]}}">Modify</a>
