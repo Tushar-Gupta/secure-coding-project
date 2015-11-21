@@ -238,5 +238,16 @@ BEGIN
 END$$
 DELIMITER ;
 
-
+USE StudentPortal
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_vulnerableLogin`(
+IN p_username VARCHAR(200),
+IN p_password VARCHAR(200)
+)
+BEGIN
+    DECLARE sql nvarchar(200);
+    SET sql = 'SELECT * FROM Users WHERE user_username = '''+ p_username + ''' and user_password = ''' + p_password + ''' ';
+return sql;
+END$$
+DELIMITER ;
 

@@ -393,7 +393,7 @@ if __name__ == "__main__":
     app.run(debug=True)
  
 ############## calling the encrypt function
-    password='root'
+    password('root')
     with open('first-log.log', 'rb') as in_file, open('encrypt-log.log', 'wb') as out_file:
         encrypt(in_file, out_file, password)
 
