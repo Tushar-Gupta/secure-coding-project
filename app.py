@@ -52,7 +52,12 @@ app.secret_key = 'MART'
 
 @app.route("/")
 def main():
-    return render_template('index.html')
+    #if a user is logged in, he will be redirected to userHome
+    sessionUser = session.get('user')
+    if sessionUser:
+        return redirect('/userHome')
+    else:
+        return render_template('index.html')
 
 @app.route('/showSignUp')
 def showSignUp():
@@ -155,11 +160,12 @@ def logout():
 @app.route('/signUp',methods=['POST'])
 def signUp():
     try:
-        _rollno = request.form['inputRollno']
-        _username = request.form['inputUsername']
-        _password = request.form['inputPassword']
+        # stripping white spaces for input validation
+        _rollno = request.form['inputRollno'].strip()
+        _username = request.form['inputUsername'].strip()
+        _password = request.form['inputPassword'].strip()
 
-        # validate the received values
+        # check required fields
         if _rollno and _username and _password:
             
             # All Good, let's call MySQL
@@ -169,11 +175,15 @@ def signUp():
             _hashed_password = generate_password_hash(_password)
             cursor.callproc('sp_createUser3',(_rollno,_username, _hashed_password, "student"))
             data = cursor.fetchall()
-
+            #encrypted logging
+            app.logger.info('A user registered with: ' + _username + _rollno + _password)
+            password='root'
+            with open('insecure-log.log', 'rb') as in_file, open('secure-log.log', 'wb') as out_file:
+                encrypt(in_file, out_file, password)
             if len(data) is 0:
                 #redirect to login! 
                 conn.commit()
-                app.logger.info('A user registered with: ' + _username + _rollno + _password)
+                
                 return redirect('/showLogin')
             else:
                 return json.dumps({'error':str(data[0])})
@@ -235,9 +245,11 @@ def createEventPage():
 @app.route('/createEvent',methods=['POST'])
 def createEvent():
     try:
-        _eventname = request.form['inputEventname']
-        _eventlink = request.form['inputEventlink']
-        _eventtype = request.form['inputEventtype']
+
+        #stripping the leading and trailing white spaces 
+        _eventname = request.form['inputEventname'].strip()
+        _eventlink = request.form['inputEventlink'].strip()
+        _eventtype = request.form['inputEventtype'].strip()
         _eventdatetime = request.form['inputEventdatetime']
         _eventuser_id = session['user']
         conn = mysql.connect()
@@ -251,7 +263,12 @@ def createEvent():
         cursor.close() 
         conn.close()
         # validate the received values
-        if _eventname and _eventtype and _eventdatetime and _eventusername:
+        nameCheck = set('[~!@#$%^&*()_+{}":;\']+$').intersection(_eventname)
+        typeCheck = set('[~!@#$%^&*()_+{}":;\']+$').intersection(_eventtype)
+
+        if nameCheck and typeCheck:
+            return json.dumps({'html':'<span>You used a special character in one of the fields. Hit back and do not do that again.</span>'})
+        elif _eventname and _eventtype and _eventdatetime and _eventusername:
             
             # All Good, let's call MySQL
             conn = mysql.connect()
@@ -272,7 +289,8 @@ def createEvent():
             return json.dumps({'html':'<span>Enter the required fields</span>'})
 
     except Exception as e:
-        return render_template('error.html',error ='Event exists. Hit Back on your browser!')
+        # return render_template('error.html',error ='Event exists. Hit Back on your browser!')
+        return render_template('error.html',error =e)
         cursor.close() 
         conn.close()
     # finally:
@@ -305,15 +323,15 @@ def deleteUser(_userID):
 @app.route('/modifyEventSendData/<int:_eventID>')
 def modifyEventSendData(_eventID):
     sessionUser = session.get('user')
-    if sessionUser:
+    conn = mysql.connect()
+    cursor = conn.cursor()
+    cursor.callproc('sp_GetEventFromID',(_eventID,))
+    data = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    #checks if the user is admin or the creator of the event
+    if checkAdmin(sessionUser) or data[0][3]==sessionUser:
         try:
-            conn = mysql.connect()
-            cursor = conn.cursor()
-            cursor.callproc('sp_GetEventFromID',(_eventID,))
-            data = cursor.fetchall()
-            print list(data)
-            cursor.close()
-            conn.close()
             return render_template('modifyEvent.html',event=list(data[0]))
         except Exception as e:
             return json.dumps({'error':str(e)})
@@ -387,19 +405,9 @@ def decrypt(in_file, out_file, password, key_length=32):
         out_file.write(chunk)
 
 if __name__ == "__main__":
-    handler = RotatingFileHandler('first-log.log', maxBytes=10000, backupCount=1)
+    handler = RotatingFileHandler('insecure-log.log', maxBytes=10000, backupCount=1)
     handler.setLevel(logging.INFO)
     app.logger.addHandler(handler)
     app.run(debug=True)
  
-############## calling the encrypt function
-    password='root'
-    with open('first-log.log', 'rb') as in_file, open('encrypt-log.log', 'wb') as out_file:
-        encrypt(in_file, out_file, password)
-
-############calling decrypt (not sure where to call this)
-############ change the filenames
-   # with open(in_filename, 'rb') as in_file, open(out_filename, 'wb') as out_file:
-       # decrypt(in_file, out_file, password)
-
 
