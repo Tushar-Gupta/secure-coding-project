@@ -5,16 +5,13 @@ from flask import session, app
 from datetime import timedelta
 import logging
 from logging.handlers import RotatingFileHandler
-from hashlib import md5
-from Crypto.Cipher import AES
-from Crypto import Random
 app = Flask(__name__)
 
 mysql = MySQL()
  
 # MySQL configurations
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'abcd'
+app.config['MYSQL_DATABASE_PASSWORD'] = ''
 app.config['MYSQL_DATABASE_DB'] = 'StudentPortal'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
@@ -162,8 +159,8 @@ def signUp():
         # validate the received values
         if _rollno and _username and _password:
             
-            # All Good, let's call MySQL
-            
+            # Log the activity 
+            app.logger.info(' A user registered with: ' + _username + _rollno + _password)
             conn = mysql.connect()
             cursor = conn.cursor()
             _hashed_password = generate_password_hash(_password)
@@ -173,7 +170,6 @@ def signUp():
             if len(data) is 0:
                 #redirect to login! 
                 conn.commit()
-                app.logger.info('A user registered with: ' + _username + _rollno + _password)
                 return redirect('/showLogin')
             else:
                 return json.dumps({'error':str(data[0])})
@@ -348,58 +344,10 @@ def modifyEvent():
         return json.dumps({'error':str(e)})
         cursor.close() 
         conn.close()
-############ encrypt log file #########
-def derive_key_and_iv(password, salt, key_length, iv_length):
-    d = d_i = ''
-    while len(d) < key_length + iv_length:
-        d_i = md5(d_i + password + salt).digest()
-        d += d_i
-    return d[:key_length], d[key_length:key_length+iv_length]
-
-def encrypt(in_file, out_file, password, key_length=32):
-    bs = AES.block_size
-    salt = Random.new().read(bs - len('Salted__'))
-    key, iv = derive_key_and_iv(password, salt, key_length, bs)
-    cipher = AES.new(key, AES.MODE_CBC, iv)
-    out_file.write('Salted__' + salt)
-    finished = False
-    while not finished:
-        chunk = in_file.read(1024 * bs)
-        if len(chunk) == 0 or len(chunk) % bs != 0:
-            padding_length = (bs - len(chunk) % bs) or bs
-            chunk += padding_length * chr(padding_length)
-            finished = True
-        out_file.write(cipher.encrypt(chunk))
-
-def decrypt(in_file, out_file, password, key_length=32):
-    bs = AES.block_size
-    salt = in_file.read(bs)[len('Salted__'):]
-    key, iv = derive_key_and_iv(password, salt, key_length, bs)
-    cipher = AES.new(key, AES.MODE_CBC, iv)
-    next_chunk = ''
-    finished = False
-    while not finished:
-        chunk, next_chunk = next_chunk, cipher.decrypt(in_file.read(1024 * bs))
-        if len(next_chunk) == 0:
-            padding_length = ord(chunk[-1])
-            chunk = chunk[:-padding_length]
-            finished = True
-        out_file.write(chunk)
 
 if __name__ == "__main__":
     handler = RotatingFileHandler('first-log.log', maxBytes=10000, backupCount=1)
     handler.setLevel(logging.INFO)
     app.logger.addHandler(handler)
     app.run(debug=True)
- 
-############## calling the encrypt function
-    password='root'
-    with open('first-log.log', 'rb') as in_file, open('encrypt-log.log', 'wb') as out_file:
-        encrypt(in_file, out_file, password)
-
-############calling decrypt (not sure where to call this)
-############ change the filenames
-   # with open(in_filename, 'rb') as in_file, open(out_filename, 'wb') as out_file:
-       # decrypt(in_file, out_file, password)
-
 
